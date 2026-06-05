@@ -6,4 +6,21 @@ build-backend = "hatchling.build"
 name = "axhub-sdk"
 version = "0.1.0"
 description = "AX Hub Python SDK"
+readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Jocoding AX Partners" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/jocoding-ax-partners/axhub-sdk-python"
+Repository = "https://github.com/jocoding-ax-partners/axhub-sdk-python"
+Issues = "https://github.com/jocoding-ax-partners/axhub-sdk-python/issues"
