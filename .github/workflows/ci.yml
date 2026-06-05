@@ -23,10 +23,10 @@ jobs:
       matrix:
         python: ['3.10', '3.11', '3.12']
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # actions/checkout v5
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # actions/checkout v6.0.3
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # actions/setup-python v6
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # actions/setup-python v6.2.0
         with:
           python-version: ${{ matrix.python }}
       - name: Conformance (42 vectors) + route parity (177)
