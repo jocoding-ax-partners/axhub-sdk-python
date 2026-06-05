@@ -48,6 +48,36 @@ class RegressionTest(unittest.TestCase):
         with self.assertRaises(AxHubError) as cm: client.request("appsGetApiV1AppsByAppID", path_params={"appID":"app_1"})
         self.assertEqual(cm.exception.request_id, "req_py")
         self.assertTrue(cm.exception.retryable)
+
+    def test_scalar_json_error_body_becomes_typed_http_error(self):
+        class ScalarErrorHandler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                raw = json.dumps("invalid_request").encode()
+                self.send_response(400); self.send_header("Content-Type", "application/json"); self.send_header("Content-Length", str(len(raw))); self.end_headers(); self.wfile.write(raw)
+            def log_message(self, *args): pass
+        server = HTTPServer(("127.0.0.1", 0), ScalarErrorHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        self.addCleanup(lambda: (server.shutdown(), server.server_close(), thread.join(timeout=2)))
+        client = AxHubClient(base_url=f"http://127.0.0.1:{server.server_port}", token="pat_secret", token_type=TokenType.PAT)
+        with self.assertRaises(AxHubError) as cm:
+            client.request("authPostOauthToken", body={"__sdk_e2e_noop": True})
+        self.assertEqual(cm.exception.status, 400)
+        self.assertEqual(cm.exception.code, "http_400")
+
+
+    def test_non_json_success_body_is_returned_as_raw_payload(self):
+        class HtmlHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                raw = b"<html>oauth redirect target</html>"
+                self.send_response(200); self.send_header("Content-Type", "text/html"); self.send_header("Content-Length", str(len(raw))); self.end_headers(); self.wfile.write(raw)
+            def log_message(self, *args): pass
+        server = HTTPServer(("127.0.0.1", 0), HtmlHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        self.addCleanup(lambda: (server.shutdown(), server.server_close(), thread.join(timeout=2)))
+        client = AxHubClient(base_url=f"http://127.0.0.1:{server.server_port}")
+        got = client.request("authGetAuthGoogleOauth2Start")
+        self.assertIn("oauth redirect target", got["raw"])
+
     def test_async_surface_exists(self):
         self.assertTrue(hasattr(AsyncAxHubClient, "apps"))
 

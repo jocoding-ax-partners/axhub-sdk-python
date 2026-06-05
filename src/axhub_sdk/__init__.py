@@ -83,11 +83,25 @@ class AxHubClient:
             else: raise AxHubError('validation','required','tokenType must be explicit')
         req=request.Request(url, data=data, headers=headers, method=route['method'])
         try:
-            with request.urlopen(req, timeout=10) as resp: raw=resp.read().decode(); return _camelize(json.loads(raw) if raw.strip() else {})
+            with request.urlopen(req, timeout=10) as resp:
+                raw=resp.read().decode()
+                if not raw.strip():
+                    parsed = {}
+                else:
+                    try:
+                        parsed = json.loads(raw)
+                    except json.JSONDecodeError:
+                        parsed = {"raw": raw}
+                return _camelize(parsed)
         except urlerror.HTTPError as e:
             raw=e.read().decode(); e.close()
-            try: err=json.loads(raw).get('error', {})
-            except json.JSONDecodeError: err={}
+            try:
+                parsed_error = json.loads(raw)
+            except json.JSONDecodeError:
+                parsed_error = {}
+            err = parsed_error.get('error', parsed_error) if isinstance(parsed_error, dict) else {}
+            if not isinstance(err, dict):
+                err = {}
             code=err.get('code') or f'http_{e.code}'; info=ERROR_CODES.get(code); category=err.get('category') or (info.category if info else 'unknown')
             retryable = bool(err['retryable']) if 'retryable' in err else bool(info.retryable if info else False)
             raise AxHubError(category, code, err.get('message',''), e.code, retryable, err.get('request_id') or err.get('requestId')) from None
