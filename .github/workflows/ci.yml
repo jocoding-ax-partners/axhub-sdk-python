@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Conformance (42 vectors) + route parity (177)
-        run: PYTHONPATH=src python -m unittest tests.test_conformance tests.test_operations tests.test_regression.RegressionTest.test_route_and_error_coverage -v
+        run: PYTHONPATH=src python -m unittest tests.test_conformance tests.test_operations tests.test_all_operations_e2e tests.test_regression.RegressionTest.test_route_and_error_coverage -v
       - run: PYTHONPATH=src python -m unittest discover -s tests -v
       - name: Build and validate distributions
         run: |
