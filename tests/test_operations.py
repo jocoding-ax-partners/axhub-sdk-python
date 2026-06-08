@@ -7,7 +7,7 @@ class OperationsCoverageTest(unittest.TestCase):
         client = AxHubClient(base_url="http://127.0.0.1:1")
         contexts = {
             "apps": client.apps, "identity": client.identity, "tenants": client.tenants, "authz": client.authz,
-            "audit": client.audit, "gateway": client.gateway, "data": client.data, "deployments": client.deployments,
+            "audit": client.audit, "gateway": client.gateway, "cost": client.cost, "data": client.data, "deployments": client.deployments,
         }
         self.assertEqual(len(OPERATION_METHODS), len(ROUTES))
         for item in OPERATION_METHODS:

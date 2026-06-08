@@ -39,15 +39,15 @@ def install_operations(ns: dict[str, Any]) -> None:
     original_init = client_cls.__init__
     def init(self, *args, **kwargs):
         original_init(self, *args, **kwargs)
-        self.identity = OperationContextClient(self); self.tenants = OperationContextClient(self); self.authz = OperationContextClient(self); self.audit = OperationContextClient(self); self.gateway = OperationContextClient(self); self.data = OperationContextClient(self); self.deployments = OperationContextClient(self)
+        self.identity = OperationContextClient(self); self.tenants = OperationContextClient(self); self.authz = OperationContextClient(self); self.audit = OperationContextClient(self); self.gateway = OperationContextClient(self); self.cost = OperationContextClient(self); self.data = OperationContextClient(self); self.deployments = OperationContextClient(self)
     client_cls.__init__ = init
     original_async_init = async_client_cls.__init__
     def async_init(self, *args, **kwargs):
         original_async_init(self, *args, **kwargs)
-        self.identity = AsyncOperationContextClient(self); self.tenants = AsyncOperationContextClient(self); self.authz = AsyncOperationContextClient(self); self.audit = AsyncOperationContextClient(self); self.gateway = AsyncOperationContextClient(self); self.data = AsyncOperationContextClient(self); self.deployments = AsyncOperationContextClient(self)
+        self.identity = AsyncOperationContextClient(self); self.tenants = AsyncOperationContextClient(self); self.authz = AsyncOperationContextClient(self); self.audit = AsyncOperationContextClient(self); self.gateway = AsyncOperationContextClient(self); self.cost = AsyncOperationContextClient(self); self.data = AsyncOperationContextClient(self); self.deployments = AsyncOperationContextClient(self)
     async_client_cls.__init__ = async_init
-    by_context = {'apps': apps_cls, 'identity': OperationContextClient, 'tenants': OperationContextClient, 'authz': OperationContextClient, 'audit': OperationContextClient, 'gateway': OperationContextClient, 'data': OperationContextClient, 'deployments': OperationContextClient}
-    async_by_context = {'apps': async_apps_cls, 'identity': AsyncOperationContextClient, 'tenants': AsyncOperationContextClient, 'authz': AsyncOperationContextClient, 'audit': AsyncOperationContextClient, 'gateway': AsyncOperationContextClient, 'data': AsyncOperationContextClient, 'deployments': AsyncOperationContextClient}
+    by_context = {'apps': apps_cls, 'identity': OperationContextClient, 'tenants': OperationContextClient, 'authz': OperationContextClient, 'audit': OperationContextClient, 'gateway': OperationContextClient, 'cost': OperationContextClient, 'data': OperationContextClient, 'deployments': OperationContextClient}
+    async_by_context = {'apps': async_apps_cls, 'identity': AsyncOperationContextClient, 'tenants': AsyncOperationContextClient, 'authz': AsyncOperationContextClient, 'audit': AsyncOperationContextClient, 'gateway': AsyncOperationContextClient, 'cost': AsyncOperationContextClient, 'data': AsyncOperationContextClient, 'deployments': AsyncOperationContextClient}
     for item in OPERATION_METHODS:
         for cls, maker in ((by_context[item['context']], _sync_method), (async_by_context[item['context']], _async_method)):
             fn = maker(item['operationId'])
