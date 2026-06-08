@@ -93,7 +93,7 @@ class LiveAllOperationsE2ETest(unittest.TestCase):
             default_tenant_id=TENANT_ID,
             default_tenant_slug=TENANT_SLUG,
         )
-        self.assertEqual(len(ROUTES), 177)
+        self.assertEqual(len(ROUTES), 189)
         self.assertEqual(len(OPERATION_METHODS), len(ROUTES))
 
         fixture = {}
@@ -114,6 +114,7 @@ class LiveAllOperationsE2ETest(unittest.TestCase):
             "authz": client.authz,
             "audit": client.audit,
             "gateway": client.gateway,
+            "cost": client.cost,
             "data": client.data,
             "deployments": client.deployments,
         }
@@ -169,8 +170,8 @@ class LiveAllOperationsE2ETest(unittest.TestCase):
             with open(result_path, "w", encoding="utf-8") as fh:
                 json.dump(summary, fh, indent=2, sort_keys=True)
 
-        self.assertEqual(summary["total"], 177)
-        self.assertEqual(summary["destructive"], 97)
+        self.assertEqual(summary["total"], 189)
+        self.assertEqual(summary["destructive"], sum(1 for route in ROUTES if route["method"] != "GET"))
         self.assertEqual(summary["exceptions"], [])
         self.assertEqual(summary["server_errors"], [])
 

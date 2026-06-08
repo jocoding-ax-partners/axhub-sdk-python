@@ -2,6 +2,7 @@ import json
 import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib import parse
 
 from axhub_sdk import AxHubClient, AsyncAxHubClient, TokenType, AxHubError, ROUTES, ERROR_CODES, CONTEXT_ROUTES
 
@@ -31,10 +32,10 @@ class RegressionTest(unittest.TestCase):
         with self.assertRaises(AxHubError) as cm: client.apps.create({"slug":"my-app"})
         self.assertEqual((cm.exception.category, cm.exception.code), ("tenant_id_required", "tenant_id_required"))
     def test_route_and_error_coverage(self):
-        self.assertEqual(len(ROUTES), 177)
-        self.assertEqual(len(ERROR_CODES), 42)
+        self.assertEqual(len(ROUTES), 189)
+        self.assertEqual(len(ERROR_CODES), 43)
         self.assertEqual(ERROR_CODES["slug_taken"].category, "conflict")
-        for name in ["apps", "identity", "tenants", "authz", "audit", "gateway", "data", "deployments"]:
+        for name in ["apps", "identity", "tenants", "authz", "audit", "gateway", "cost", "data", "deployments"]:
             self.assertTrue(CONTEXT_ROUTES[name], name)
     def test_error_metadata_and_redaction(self):
         class ErrorHandler(BaseHTTPRequestHandler):
@@ -77,6 +78,36 @@ class RegressionTest(unittest.TestCase):
         client = AxHubClient(base_url=f"http://127.0.0.1:{server.server_port}")
         got = client.request("authGetAuthGoogleOauth2Start")
         self.assertIn("oauth redirect target", got["raw"])
+
+    def test_oauth_form_encoding_redirect_policy_and_snake_case(self):
+        class WireHandler(BaseHTTPRequestHandler):
+            seen = {}
+            redirect_target_hit = False
+            def do_POST(self):
+                raw = self.rfile.read(int(self.headers.get("Content-Length", "0"))).decode()
+                WireHandler.seen = {"content_type": self.headers.get("Content-Type"), "body": raw}
+                body = json.dumps({"access_token": "tok_py", "token_type": "Bearer", "expires_in": 3600}).encode()
+                self.send_response(200); self.send_header("Content-Type", "application/json"); self.send_header("Content-Length", str(len(body))); self.end_headers(); self.wfile.write(body)
+            def do_GET(self):
+                if self.path == "/redirect-target":
+                    WireHandler.redirect_target_hit = True
+                    self.send_response(500); self.end_headers()
+                else:
+                    self.send_response(302); self.send_header("Location", "/redirect-target"); self.end_headers()
+            def log_message(self, *args): pass
+        server = HTTPServer(("127.0.0.1", 0), WireHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        self.addCleanup(lambda: (server.shutdown(), server.server_close(), thread.join(timeout=2)))
+        client = AxHubClient(base_url=f"http://127.0.0.1:{server.server_port}", token="pat_secret", token_type=TokenType.PAT)
+        got = client.request("authPostOauthToken", body={"grant_type": "client_credentials", "client_id": "cid"})
+        self.assertEqual(got["access_token"], "tok_py")
+        self.assertNotIn("accessToken", got)
+        self.assertTrue(WireHandler.seen["content_type"].startswith("application/x-www-form-urlencoded"))
+        self.assertEqual(parse.parse_qs(WireHandler.seen["body"])["grant_type"], ["client_credentials"])
+        self.assertNotIn("{", WireHandler.seen["body"])
+        redirect = client.request("authGetAuthGoogleOauth2Start")
+        self.assertEqual(redirect, {"status": 302, "location": "/redirect-target"})
+        self.assertFalse(WireHandler.redirect_target_hit)
 
     def test_async_surface_exists(self):
         self.assertTrue(hasattr(AsyncAxHubClient, "apps"))
