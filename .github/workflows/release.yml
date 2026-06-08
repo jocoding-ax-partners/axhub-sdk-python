@@ -91,3 +91,13 @@ jobs:
             sleep 30
           done
           python -c "import axhub_sdk; print(axhub_sdk.DEFAULT_BASE_URL)"
+
+  github_release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # softprops/action-gh-release v3.0.0
+        with:
+          generate_release_notes: true
