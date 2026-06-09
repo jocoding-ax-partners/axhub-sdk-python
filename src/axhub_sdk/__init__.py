@@ -84,26 +84,27 @@ def _form_body(body: Any) -> bytes:
     return parse.urlencode({}).encode()
 
 class AxHubClient:
-    def __init__(self, *, base_url: str = DEFAULT_BASE_URL, token: str | None = None, token_type: TokenType | str | None = None, default_tenant_id: str | None = None, default_tenant_slug: str | None = None):
-        self.base_url=base_url.rstrip('/'); self.token=token; self.token_type=TokenType(token_type) if token_type else None; self.default_tenant_id=default_tenant_id; self.default_tenant_slug=default_tenant_slug; self.apps=AppsClient(self)
+    def __init__(self, *, base_url: str = DEFAULT_BASE_URL, token: str | None = None, token_type: TokenType | str | None = None, default_tenant_id: str | None = None, default_tenant_slug: str | None = None, schema_cache: Any = None):
+        self.base_url=base_url.rstrip('/'); self.token=token; self.token_type=TokenType(token_type) if token_type else None; self.default_tenant_id=default_tenant_id; self.default_tenant_slug=default_tenant_slug; self.apps=AppsClient(self); self._schema_cache_opt=schema_cache; self._ergo_data_client=None
     def redacted_token(self) -> str: return "" if not self.token else "***REDACTED***"
-    def request(self, operation_id: str, *, path_params: Mapping[str,str] | None = None, query: Mapping[str,str] | None = None, body: Any = None) -> dict[str, Any]:
-        route=_ROUTE_BY_OP[operation_id]; path=route['path'];
-        for k,v in (path_params or {}).items(): path=path.replace('{'+k+'}', parse.quote(str(v), safe=''))
-        if re.search(r'\{[^}]+\}', path): raise AxHubError('validation','required','missing path parameter')
-        url=self.base_url+path
-        if query: url += '?' + parse.urlencode(query)
-        data=None; headers={'X-Request-ID': _request_id()}
-        if body is not None:
-            if _is_form_encoded(operation_id):
-                data=_form_body(body); headers['Content-Type']='application/x-www-form-urlencoded'
-            else:
-                data=json.dumps(body).encode(); headers['Content-Type']='application/json'
+    def _auth_headers(self) -> dict[str, str]:
+        headers: dict[str, str] = {}
         if self.token:
             if self.token_type == TokenType.PAT: headers['X-Api-Key']=self.token
             elif self.token_type == TokenType.JWT: headers['Authorization']='Bearer '+self.token
             else: raise AxHubError('validation','required','tokenType must be explicit')
-        req=request.Request(url, data=data, headers=headers, method=route['method'])
+        return headers
+    def _send(self, method: str, url: str, *, data: bytes | None = None, content_type: str | None = None, camelize: bool = True, snake_keys: bool = False) -> Any:
+        """Post-routing transport: auth + redirect policy + response/error normalization.
+
+        Shared by the operation-id `request()` path and the raw-path `request_raw()`
+        path. `camelize=False` mirrors the node data transport, which returns row
+        bodies and list envelopes verbatim (no snake->camel key rewriting).
+        """
+        headers={'X-Request-ID': _request_id()}
+        if content_type is not None: headers['Content-Type']=content_type
+        headers.update(self._auth_headers())
+        req=request.Request(url, data=data, headers=headers, method=method)
         try:
             with _NO_REDIRECT_OPENER.open(req, timeout=10) as resp:
                 raw=resp.read().decode()
@@ -114,7 +115,8 @@ class AxHubClient:
                         parsed = json.loads(raw)
                     except json.JSONDecodeError:
                         parsed = {"raw": raw}
-                return _camelize_oauth_response(parsed) if operation_id in _OAUTH_RESPONSE_SNAKE_CASE_OPERATIONS else _camelize(parsed)
+                if not camelize: return parsed
+                return _camelize_oauth_response(parsed) if snake_keys else _camelize(parsed)
         except urlerror.HTTPError as e:
             if 300 <= e.code < 400:
                 location = e.headers.get("Location") if e.headers else None
@@ -131,6 +133,33 @@ class AxHubClient:
             code=err.get('code') or f'http_{e.code}'; info=ERROR_CODES.get(code); category=err.get('category') or (info.category if info else 'unknown')
             retryable = bool(err['retryable']) if 'retryable' in err else bool(info.retryable if info else False)
             raise AxHubError(category, code, err.get('message',''), e.code, retryable, err.get('request_id') or err.get('requestId')) from None
+    def request(self, operation_id: str, *, path_params: Mapping[str,str] | None = None, query: Mapping[str,str] | None = None, body: Any = None) -> dict[str, Any]:
+        route=_ROUTE_BY_OP[operation_id]; path=route['path'];
+        for k,v in (path_params or {}).items(): path=path.replace('{'+k+'}', parse.quote(str(v), safe=''))
+        if re.search(r'\{[^}]+\}', path): raise AxHubError('validation','required','missing path parameter')
+        url=self.base_url+path
+        if query: url += '?' + parse.urlencode(query)
+        data=None; content_type=None
+        if body is not None:
+            if _is_form_encoded(operation_id):
+                data=_form_body(body); content_type='application/x-www-form-urlencoded'
+            else:
+                data=json.dumps(body).encode(); content_type='application/json'
+        return self._send(route['method'], url, data=data, content_type=content_type, snake_keys=operation_id in _OAUTH_RESPONSE_SNAKE_CASE_OPERATIONS)
+    def request_raw(self, method: str, path: str, *, query: Mapping[str, Any] | None = None, body: Any = None, camelize: bool = False) -> Any:
+        """Raw-path transport for endpoints with no generated operation-id facade
+        (the ergonomic data ring: dynamic CRUD + runtime schema discover).
+
+        `path` is already fully substituted and percent-encoded by the caller.
+        Defaults to `camelize=False` to mirror the node data transport: row bodies
+        and list envelopes (`has_more`/`per_page`) are returned verbatim.
+        """
+        url=self.base_url+path
+        if query: url += '?' + parse.urlencode(query, doseq=True)
+        data=None; content_type=None
+        if body is not None:
+            data=json.dumps(body).encode(); content_type='application/json'
+        return self._send(method, url, data=data, content_type=content_type, camelize=camelize)
 class AppsClient:
     def __init__(self, client: AxHubClient): self._client=client
     def create(self, body: Mapping[str, Any]) -> dict[str, Any]:
@@ -163,3 +192,51 @@ CONTEXT_ROUTES = {name: [r for r in ROUTES if _context_name(r) == name] for name
 
 from .operations import install_operations as _install_operations
 _install_operations(globals())
+
+
+# --- Ergonomic data layer fluent surface (mirrors node sdk.tenant().app().data) ---
+# `client.data` stays the operation-id route-table OperationContextClient (the
+# conformance vectors + e2e tests depend on it). The ergonomic data layer is
+# reached only through the tenant/app fluent chain, exactly as in node.
+class _AppScope:
+    def __init__(self, data: Any, tenant_slug: str, app_slug: str):
+        # `data` is the single per-client DataClient (memoized on AxHubClient),
+        # so its schema cache persists across every tenant().app() chain — node parity.
+        self.data = data.scoped(tenant_slug).app(app_slug)
+
+
+class _TenantScope:
+    def __init__(self, data: Any, tenant_slug: str):
+        self._data = data
+        self._tenant_slug = tenant_slug
+
+    def app(self, app_slug: str) -> _AppScope:
+        return _AppScope(self._data, self._tenant_slug, app_slug)
+
+
+def _ergo_data(self: 'AxHubClient'):
+    """The single per-client ergonomic DataClient, lazily memoized so the
+    schema cache (TTL/negative-TTL/LRU) survives across tenant().app() chains
+    (mirrors node, where `data` is one per-SDK DataClient)."""
+    existing = getattr(self, '_ergo_data_client', None)
+    if existing is None:
+        from .data import DataClient
+        existing = DataClient(self, schema_cache=getattr(self, '_schema_cache_opt', None))
+        self._ergo_data_client = existing
+    return existing
+
+
+def _tenant(self: 'AxHubClient', tenant_slug: str) -> _TenantScope:
+    return _TenantScope(self.ergo_data(), tenant_slug)
+
+
+AxHubClient.ergo_data = _ergo_data
+AxHubClient.tenant = _tenant
+
+
+def _async_tenant(self: 'AsyncAxHubClient', tenant_slug: str) -> _TenantScope:
+    # Sync-backed data layer; async wrapper exposes the same fluent surface.
+    return _TenantScope(self._sync.ergo_data(), tenant_slug)
+
+
+AsyncAxHubClient.tenant = _async_tenant
