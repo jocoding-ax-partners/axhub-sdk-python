@@ -256,10 +256,24 @@ class ListWireTest(_ServerCase):
         result = self.table().list(select=["id", "total"], where=where("id").eq("1"))
         self.assertEqual(result.items[0], {"id": "1", "total": 9})
 
-    def test_list_and_count_require_where_filter(self):
-        # Live backend rejects an unfiltered list/count with HTTP 400 (mass-scan
-        # guard, confirmed 2026-06). The SDK fails fast with where_required before
-        # any network call so the contract is unmissable.
+    def test_filterless_list_passes_for_owner_scoped_tables(self):
+        # Live contract 2026-06: the backend ACCEPTS unfiltered list/count on
+        # owner-scoped tables (rows auto-scope to the caller). The 0.3.0
+        # client-side pre-check wrongly blocked this — filterless calls must
+        # reach the wire.
+        self.set_response({"items": [{"id": "mine"}], "has_more": False})
+        result = self.table().list()
+        self.assertEqual(result.items[0]["id"], "mine")
+
+    def test_backend_where_required_400_maps_to_validation_error(self):
+        # Non-owner-scoped tables still get the mass-scan guard — server-side.
+        # The SDK maps that 400 (code=required) onto the same actionable error.
+        self.set_response(
+            {"error": {"message": "최소 1개의 WHERE 필터가 필요해요", "code": "required",
+                       "category": "validation", "retryable": False,
+                       "fields": [{"name": "where", "code": "required"}]}},
+            status=400,
+        )
         tc = self.table()
         with self.assertRaises(ValidationError) as cm:
             tc.list()

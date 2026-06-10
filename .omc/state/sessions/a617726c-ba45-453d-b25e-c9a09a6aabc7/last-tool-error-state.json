@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"REPO=jocoding-ax-partners/axhub-sdk-python; RUN=27111702177\\nfor i in $(seq 1 18); do\\n  state=$(gh run view $RUN --repo $REPO --json status,conclusion,jobs --jq '\\\"\\\\(.status)|\\\\(.conclus...",
+  "error": "Exit code 1\n(eval):4: read-only variable: status",
+  "timestamp": "2026-06-08T01:55:21.822Z",
+  "retry_count": 1
+}

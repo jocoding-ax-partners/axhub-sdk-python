@@ -42,6 +42,28 @@ def _clamp_per_page(value: Any) -> int | None:
         return 100
     return min(100, max(1, int(value)))
 
+def _map_where_required(op: str, run):
+    """The backend 400s an unfiltered list/count on NON-owner-scoped tables
+    ("최소 1개의 WHERE 필터가 필요해요") but ACCEPTS it on owner-scoped tables
+    (rows auto-scope to the caller) — both confirmed live 2026-06. The SDK
+    cannot know ownership up front, so a client-side pre-check wrongly blocked
+    the owner-scoped case (0.3.0 regression). Send the request and normalize
+    the backend's where-required 400 instead."""
+    try:
+        return run()
+    except Exception as e:  # noqa: BLE001 — narrow re-raise below
+        code = getattr(e, "code", None)
+        status = getattr(e, "status", None)
+        if code == "required" and status == 400:
+            raise ValidationError(
+                f"AxHub data {op} requires at least one WHERE filter on this "
+                "table (the backend rejects unfiltered scans on non-owner-"
+                "scoped tables). Pass `where=...`.",
+                "where_required",
+            ) from e
+        raise
+
+
 
 def _reject_legacy_page_options(after: Any, before: Any, direction: Any, table_name: str) -> None:
     if after is not None or before is not None or direction is not None:
@@ -112,16 +134,6 @@ class DataTableClient:
         _reject_legacy_page_options(after, before, direction, self._table_name)
         resolved_page = _resolve_offset_page(cursor, page, self._table_name)
         per_page = _clamp_per_page(page_size if page_size is not None else limit)
-        # The AxHub data ring rejects an unfiltered list with HTTP 400
-        # ("최소 1개의 WHERE 필터가 필요해요") as a deliberate mass-scan guard —
-        # confirmed live 2026-06, mirrored by the `axhub data` CLI. Checked after
-        # cursor/page validation so a malformed cursor still surfaces first.
-        if where is None:
-            raise ValidationError(
-                "AxHub data list requires at least one WHERE filter "
-                "(the backend rejects unfiltered scans). Pass `where=...`.",
-                "where_required",
-            )
         query: dict[str, Any] = dict(serialize_where(where))
         if per_page is not None:
             query["per_page"] = per_page
@@ -133,7 +145,7 @@ class DataTableClient:
         serialized_select = serialize_select(select)
         if serialized_select is not None:
             query["_select"] = serialized_select
-        raw = self._client.request_raw("GET", self._path(), query=query) or {}
+        raw = _map_where_required("list", lambda: self._client.request_raw("GET", self._path(), query=query)) or {}
         items = project_rows(raw.get("items") or [], select)
         # NOTE: mirrors node behavior — current_page falls back to the requested
         # page, has_next reads the backend `has_more` flag verbatim, has_prev is
@@ -173,14 +185,8 @@ class DataTableClient:
         return list_all(fetcher, {"page_size": page_size})
 
     def count(self, *, where: dict | None = None) -> int:
-        # Same mass-scan guard as list() — the backend 400s an unfiltered count.
-        if where is None:
-            raise ValidationError(
-                "AxHub data count requires at least one WHERE filter "
-                "(the backend rejects unfiltered scans). Pass `where=...`.",
-                "where_required",
-            )
-        raw = self._client.request_raw("GET", f"{self._path()}/_count", query=serialize_where(where)) or {}
+        raw = _map_where_required("count", lambda: self._client.request_raw(
+            "GET", f"{self._path()}/_count", query=serialize_where(where))) or {}
         return raw.get("count")
 
     def get(self, row_id: str, *, select: Sequence[str] | None = None) -> dict[str, Any]:
