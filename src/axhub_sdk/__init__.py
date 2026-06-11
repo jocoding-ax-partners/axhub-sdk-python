@@ -121,7 +121,7 @@ class AxHubClient:
         headers.update(self._auth_headers())
         req=request.Request(url, data=data, headers=headers, method=method)
         try:
-            with _NO_REDIRECT_OPENER.open(req, timeout=10) as resp:
+            with _NO_REDIRECT_OPENER.open(req, timeout=30) as resp:
                 raw=resp.read().decode()
                 if not raw.strip():
                     parsed = {}
