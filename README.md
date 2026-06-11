@@ -5,7 +5,7 @@ AX Hub Python SDK for `https://api.axhub.ai`. It gives agents a dependency-light
 ## Install
 
 ```bash
-pip install axhub-sdk==0.2.0
+pip install axhub-sdk==0.3.1
 ```
 
 Local development:
