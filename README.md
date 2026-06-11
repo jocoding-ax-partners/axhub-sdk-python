@@ -5,7 +5,7 @@ AX Hub Python SDK for `https://api.axhub.ai`. It gives agents a dependency-light
 ## Install
 
 ```bash
-pip install axhub-sdk==0.2.0
+pip install axhub-sdk==0.4.0
 ```
 
 Local development:
@@ -54,7 +54,7 @@ app = client.apps.create({
     "name": "Agent Python README QA",
     "visibility": "private",
     "auth_mode": "anonymous",
-    "resource_tier": "S",
+    "resource_preset": "S",
     "deploy_method": "docker",
     "subdomain": slug,
 })
