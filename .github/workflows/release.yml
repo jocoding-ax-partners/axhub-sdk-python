@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # actions/setup-python v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # actions/setup-python v6.3.0
         with:
           python-version: '3.12'
       - name: Verify tag commit is on main
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # actions/setup-python v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # actions/setup-python v6.3.0
         with:
           python-version: '3.12'
       - name: Install and import published package
