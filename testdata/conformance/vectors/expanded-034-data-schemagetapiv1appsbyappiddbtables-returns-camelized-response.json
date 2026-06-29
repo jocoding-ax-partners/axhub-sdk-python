@@ -1,5 +1,5 @@
 {
-  "name": "data.schemaGetApiV1AppsByAppIDTables returns camelized response",
+  "name": "data.schemaGetApiV1AppsByAppIDDbTables returns camelized response",
   "client": {
     "tokenType": "pat",
     "token": "pat_x",
@@ -8,9 +8,9 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "schemaGetApiV1AppsByAppIDTables",
+    "operationId": "schemaGetApiV1AppsByAppIDDbTables",
     "context": "data",
-    "method": "schema_get_api_v1_apps_by_app_id_tables",
+    "method": "schema_get_api_v1_apps_by_app_id_db_tables",
     "pathParams": {
       "appID": "app_1"
     },
@@ -19,7 +19,7 @@
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/apps/app_1/tables",
+    "path": "/api/v1/apps/app_1/db/tables",
     "headersInclude": [
       "x-request-id"
     ],
@@ -30,7 +30,7 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "schemaGetApiV1AppsByAppIDTables",
+      "operation_id": "schemaGetApiV1AppsByAppIDDbTables",
       "context_name": "data",
       "result_id": "ok_data",
       "nested_value": {
@@ -40,7 +40,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "schemaGetApiV1AppsByAppIDTables",
+      "operationId": "schemaGetApiV1AppsByAppIDDbTables",
       "contextName": "data",
       "resultId": "ok_data"
     }

@@ -1,0 +1,74 @@
+{
+  "name": "releases apps.appsPostApiV1TenantsByTenantIDAppsByAppIDStaticReleases real-schema response preserves top-level fields",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "appsPostApiV1TenantsByTenantIDAppsByAppIDStaticReleases",
+    "context": "apps",
+    "method": "apps_post_api_v1_tenants_by_tenant_id_apps_by_app_id_static_releases",
+    "pathParams": {
+      "tenantID": "tnt_1",
+      "appID": "app_1"
+    },
+    "query": {},
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/tenants/tnt_1/apps/app_1/static/releases",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "activated_at": "val_activated_at",
+      "app_id": "val_app_id",
+      "content_sha256": "val_content_sha256",
+      "created_at": "val_created_at",
+      "file_count": 1,
+      "finalized_at": "val_finalized_at",
+      "id": "val_id",
+      "is_active": true,
+      "is_staging": true,
+      "manifest_key": "val_manifest_key",
+      "revoked_at": "val_revoked_at",
+      "status": "val_status",
+      "tenant_id": "val_tenant_id",
+      "total_bytes": 1,
+      "uploads": [],
+      "version": "val_version"
+    }
+  },
+  "expect": {
+    "ok": {
+      "activatedAt": "val_activated_at",
+      "appId": "val_app_id",
+      "contentSha256": "val_content_sha256",
+      "createdAt": "val_created_at",
+      "fileCount": 1,
+      "finalizedAt": "val_finalized_at",
+      "id": "val_id",
+      "isActive": true,
+      "isStaging": true,
+      "manifestKey": "val_manifest_key",
+      "revokedAt": "val_revoked_at",
+      "status": "val_status",
+      "tenantId": "val_tenant_id",
+      "totalBytes": 1,
+      "version": "val_version"
+    }
+  }
+}

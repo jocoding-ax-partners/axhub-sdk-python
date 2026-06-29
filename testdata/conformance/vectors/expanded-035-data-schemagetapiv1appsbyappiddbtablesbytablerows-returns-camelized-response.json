@@ -1,5 +1,5 @@
 {
-  "name": "data.schemaPostApiV1AppsByAppIDTables returns camelized response",
+  "name": "data.schemaGetApiV1AppsByAppIDDbTablesByTableRows returns camelized response",
   "client": {
     "tokenType": "jwt",
     "token": "jwt_x",
@@ -8,21 +8,19 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "schemaPostApiV1AppsByAppIDTables",
+    "operationId": "schemaGetApiV1AppsByAppIDDbTablesByTableRows",
     "context": "data",
-    "method": "schema_post_api_v1_apps_by_app_id_tables",
+    "method": "schema_get_api_v1_apps_by_app_id_db_tables_by_table_rows",
     "pathParams": {
-      "appID": "app_1"
+      "appID": "app_1",
+      "table": "contacts"
     },
     "query": {},
-    "body": {
-      "name": "Vector Example",
-      "slug": "vector-example"
-    }
+    "body": null
   },
   "httpExpect": {
-    "method": "POST",
-    "path": "/api/v1/apps/app_1/tables",
+    "method": "GET",
+    "path": "/api/v1/apps/app_1/db/tables/contacts/rows",
     "headersInclude": [
       "x-request-id"
     ],
@@ -33,7 +31,7 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "schemaPostApiV1AppsByAppIDTables",
+      "operation_id": "schemaGetApiV1AppsByAppIDDbTablesByTableRows",
       "context_name": "data",
       "result_id": "ok_data",
       "nested_value": {
@@ -43,7 +41,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "schemaPostApiV1AppsByAppIDTables",
+      "operationId": "schemaGetApiV1AppsByAppIDDbTablesByTableRows",
       "contextName": "data",
       "resultId": "ok_data"
     }

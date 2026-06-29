@@ -1,0 +1,52 @@
+{
+  "name": "env-vars apps.appsPostApiV1AppsByAppIDEnvVars real-schema response preserves top-level fields",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "appsPostApiV1AppsByAppIDEnvVars",
+    "context": "apps",
+    "method": "apps_post_api_v1_apps_by_app_id_env_vars",
+    "pathParams": {
+      "appID": "app_1"
+    },
+    "query": {},
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/apps/app_1/env-vars",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "has_staging_override": true,
+      "key": "val_key",
+      "secret": true,
+      "stage": "val_stage",
+      "value": "val_value"
+    }
+  },
+  "expect": {
+    "ok": {
+      "hasStagingOverride": true,
+      "key": "val_key",
+      "secret": true,
+      "stage": "val_stage",
+      "value": "val_value"
+    }
+  }
+}
