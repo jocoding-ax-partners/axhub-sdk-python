@@ -189,20 +189,6 @@ class AxHubClient:
             else:
                 data=json.dumps(body).encode(); content_type='application/json'
         return self._send(route['method'], url, data=data, content_type=content_type, snake_keys=operation_id in _OAUTH_RESPONSE_SNAKE_CASE_OPERATIONS)
-    def request_raw(self, method: str, path: str, *, query: Mapping[str, Any] | None = None, body: Any = None, camelize: bool = False) -> Any:
-        """Raw-path transport for endpoints with no generated operation-id facade
-        (the ergonomic data ring: dynamic CRUD + runtime schema discover).
-
-        `path` is already fully substituted and percent-encoded by the caller.
-        Defaults to `camelize=False` to mirror the node data transport: row bodies
-        and list envelopes (`has_more`/`per_page`) are returned verbatim.
-        """
-        url=self.base_url+path
-        if query: url += '?' + parse.urlencode(query, doseq=True)
-        data=None; content_type=None
-        if body is not None:
-            data=json.dumps(body).encode(); content_type='application/json'
-        return self._send(method, url, data=data, content_type=content_type, camelize=camelize)
 class AppsClient:
     def __init__(self, client: AxHubClient): self._client=client
     def create(self, body: Mapping[str, Any]) -> dict[str, Any]:
