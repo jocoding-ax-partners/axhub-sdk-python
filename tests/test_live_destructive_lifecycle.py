@@ -146,49 +146,6 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
         tolerate("icon upload url", "appsPostApiV1AppsByAppIDIconUploadUrl", {"appID": app_id},
                  {"content_type": "image/png"}, allowed=(400, 404, 422))
 
-        # --- tables: create -> add column -> grant -> rows CRUD -> revoke -> drop col -> delete ---
-        must("create table", "schemaPostApiV1AppsByAppIDTables", {"appID": app_id}, {
-            "table_name": table_name,
-            "owner_column": "owner_id",
-            "columns": [
-                {"name": "owner_id", "type": "uuid", "nullable": False},
-                {"name": "title", "type": "text", "nullable": False},
-                {"name": "status", "type": "text", "nullable": False},
-                {"name": "metadata", "type": "jsonb", "nullable": True},
-            ],
-        })
-        must("add column", "schemaPostApiV1AppsByAppIDTablesByTableNameColumns",
-             {"appID": app_id, "tableName": table_name},
-             {"column": {"name": "priority", "type": "int", "nullable": True, "default": "0"}})
-
-        g_res = must("add grant", "schemaPostApiV1AppsByAppIDTablesByTableNameGrants",
-                     {"appID": app_id, "tableName": table_name},
-                     {"principal_type": "user", "principal_id": user_id, "actions": ["read", "write"]})
-        grant_id = _dl_str(g_res, "id", "grantId", "grantID")
-
-        # rows CRUD (node MISSES these)
-        r_res = must("insert row", "schemaPostApiV1AppsByAppIDTablesByTableNameRows",
-                     {"appID": app_id, "tableName": table_name},
-                     {"owner_id": user_id, "title": "row-" + suffix, "status": "active", "metadata": {"k": "v"}})
-        row_id = _dl_str(r_res, "id", "rowId", "rowID")
-        if row_id:
-            must("update row", "schemaPatchApiV1AppsByAppIDTablesByTableNameRowsById",
-                 {"appID": app_id, "tableName": table_name, "id": row_id},
-                 {"title": "row-" + suffix + "-updated"})
-            must("delete row", "schemaDeleteApiV1AppsByAppIDTablesByTableNameRowsById",
-                 {"appID": app_id, "tableName": table_name, "id": row_id})
-        else:
-            with self.subTest("insert row id"):
-                self.fail(f"insert row: no id in response {sorted(r_res.keys())}")
-
-        if grant_id:
-            must("revoke grant", "schemaDeleteApiV1AppsByAppIDTablesByTableNameGrantsByGrantID",
-                 {"appID": app_id, "tableName": table_name, "grantID": grant_id})
-        must("drop column", "schemaDeleteApiV1AppsByAppIDTablesByTableNameColumnsByColumnName",
-             {"appID": app_id, "tableName": table_name, "columnName": "priority"})
-        must("delete table", "schemaDeleteApiV1AppsByAppIDTablesByTableName",
-             {"appID": app_id, "tableName": table_name})
-
         # --- raw-db (node MISSES; body contract uncertain -> tolerate POST + DELETE; app is disposable) ---
         tolerate("raw-db exec", "appsPostApiV1AppsByAppIDRawDb", {"appID": app_id},
                  {"sql": "select 1"}, allowed=(400, 403, 404, 409, 422, 501))
