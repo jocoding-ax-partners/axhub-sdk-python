@@ -1,0 +1,64 @@
+{
+  "name": "connectors gateway.gatewayPostApiV1TenantsByTenantIDConnectors real-schema response preserves top-level fields",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "gatewayPostApiV1TenantsByTenantIDConnectors",
+    "context": "gateway",
+    "method": "gateway_post_api_v1_tenants_by_tenant_id_connectors",
+    "pathParams": {
+      "tenantID": "tnt_1"
+    },
+    "query": {},
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/tenants/tnt_1/connectors",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "classification": [],
+      "config": {},
+      "created_at": "val_created_at",
+      "description": "val_description",
+      "enabled": true,
+      "engine": "val_engine",
+      "id": "val_id",
+      "kind": "val_kind",
+      "last_discovered_at": "val_last_discovered_at",
+      "name": "val_name",
+      "tenant_id": "val_tenant_id",
+      "updated_at": "val_updated_at"
+    }
+  },
+  "expect": {
+    "ok": {
+      "createdAt": "val_created_at",
+      "description": "val_description",
+      "enabled": true,
+      "engine": "val_engine",
+      "id": "val_id",
+      "kind": "val_kind",
+      "lastDiscoveredAt": "val_last_discovered_at",
+      "name": "val_name",
+      "tenantId": "val_tenant_id",
+      "updatedAt": "val_updated_at"
+    }
+  }
+}

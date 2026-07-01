@@ -1,0 +1,52 @@
+{
+  "name": "W7 static-release finalize before upload yields static_release_not_ready",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "appsPostApiV1TenantsByTenantIDAppsByAppIDStaticReleasesByReleaseIDFinalize",
+    "context": "apps",
+    "method": "apps_post_api_v1_tenants_by_tenant_id_apps_by_app_id_static_releases_by_release_id_finalize",
+    "pathParams": {
+      "tenantID": "tnt_1",
+      "appID": "app_1",
+      "releaseID": "releaseid_1"
+    },
+    "query": {},
+    "body": null
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/tenants/tnt_1/apps/app_1/static/releases/releaseid_1/finalize",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 412,
+    "body": {
+      "error": {
+        "category": "precondition_failed",
+        "code": "static_release_not_ready",
+        "message": "release not finalized: presigned upload incomplete",
+        "retryable": false,
+        "request_id": "req_static_release_not_ready"
+      }
+    }
+  },
+  "expect": {
+    "error": {
+      "category": "precondition_failed",
+      "code": "static_release_not_ready",
+      "requestId": "req_static_release_not_ready",
+      "retryable": false
+    }
+  }
+}

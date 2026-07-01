@@ -74,19 +74,14 @@ client.request(
     },
 )
 
-row = client.request(
-    "schemaPostDataByTenantSlugByAppSlugByTable",
-    path_params={"tenantSlug": "test", "appSlug": slug, "table": table},
-    body={"owner_id": user_id, "title": "hello", "status": "new"},
-)
-print("created", app_id, table, row["id"])
+print("created", app_id, table)
 ```
 
 ## How to call the full API surface
 
 - High-level app create: `client.apps.create(body)` uses `default_tenant_id`.
 - Any route by operation id: `client.request(operation_id, path_params={...}, query={...}, body={...})`.
-- Generated facade: `client.data.schema_post_data_by_tenant_slug_by_app_slug_by_table(path_params={...}, body={...})`.
+- Generated facade: `client.data.schema_post_api_v1_apps_by_app_id_tables(path_params={...}, body={...})`.
 - Async client: `AsyncAxHubClient` mirrors `request` and generated operation facades.
 - Route inventory: `ROUTES`, `CONTEXT_ROUTES`, `ERROR_CODES`, and `OPERATION_METHODS`.
 - Errors: catch `AxHubError` and branch on `code`, `category`, `status`, and `retryable`.
@@ -106,19 +101,12 @@ Use the high-level `apps.create` helper for the first app, then use generated op
 | Add table grant | `schemaPostApiV1AppsByAppIDTablesByTableNameGrants` | `appID`, `tableName` | response has grant `id` |
 | List grants | `schemaGetApiV1AppsByAppIDTablesByTableNameGrants` | `appID`, `tableName` | list contains grant `id` |
 | Revoke/delete grant | `schemaDeleteApiV1AppsByAppIDTablesByTableNameGrantsByGrantID` | `appID`, `tableName`, `grantID` | list still contains grant with `revokedAt` set |
-| Insert row | `schemaPostDataByTenantSlugByAppSlugByTable` | `tenantSlug`, `appSlug`, `table` | response has row `id` and submitted fields |
-| Get row | `schemaGetDataByTenantSlugByAppSlugByTableById` | `tenantSlug`, `appSlug`, `table`, `id` | response row `id` matches |
-| Update row | `schemaPatchDataByTenantSlugByAppSlugByTableById` | `tenantSlug`, `appSlug`, `table`, `id` | response contains patched fields |
-| List rows | `schemaGetDataByTenantSlugByAppSlugByTable` | `tenantSlug`, `appSlug`, `table` | `items` contains row `id` |
-| Count rows | `schemaGetDataByTenantSlugByAppSlugByTableCount` | `tenantSlug`, `appSlug`, `table` | `count` matches expected fixture count |
 | Browse admin rows | `schemaGetApiV1AppsByAppIDTablesByTableNameRows` | `appID`, `tableName` | response has `rows` and `columns` arrays |
-| Delete row | `schemaDeleteDataByTenantSlugByAppSlugByTableById` | `tenantSlug`, `appSlug`, `table`, `id` | follow-up get returns `404` or `410` |
 | Delete table | `schemaDeleteApiV1AppsByAppIDTablesByTableName` | `appID`, `tableName` | follow-up inspect returns `404` or `410` |
 | Delete app | `appsDeleteApiV1AppsByAppID`, then `appsDeleteApiV1AppsByAppIDPermanent` | `appID` | app is soft-deleted, then permanently deleted |
 
 Important semantics from live QA:
 
-- Row delete is hard enough for client assertions: a follow-up row get returns `404 not_found` or `410`.
 - Table delete is hard enough for client assertions: a follow-up table inspect returns `404 not_found` or `410`.
 - Table grant delete is a soft revoke: the grant can remain in `listGrants`, but the same grant id must have `revokedAt` set. Do not assert disappearance.
 - Deployment creation without a connected git/bootstrap source can return a precondition-style 4xx. That verifies SDK error handling, not a deploy bug.

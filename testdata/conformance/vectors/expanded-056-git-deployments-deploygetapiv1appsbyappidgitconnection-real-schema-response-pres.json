@@ -1,0 +1,51 @@
+{
+  "name": "git deployments.deployGetApiV1AppsByAppIDGitConnection real-schema response preserves top-level fields",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "deployGetApiV1AppsByAppIDGitConnection",
+    "context": "deployments",
+    "method": "deploy_get_api_v1_apps_by_app_id_git_connection",
+    "pathParams": {
+      "appID": "app_1"
+    },
+    "query": {},
+    "body": null
+  },
+  "httpExpect": {
+    "method": "GET",
+    "path": "/api/v1/apps/app_1/git-connection",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "branch": "val_branch",
+      "connected": true,
+      "install_url": "val_install_url",
+      "installation_id": 1,
+      "provider": "val_provider",
+      "repo_full_name": "val_repo_full_name"
+    }
+  },
+  "expect": {
+    "ok": {
+      "branch": "val_branch",
+      "connected": true,
+      "installUrl": "val_install_url",
+      "installationId": 1,
+      "provider": "val_provider",
+      "repoFullName": "val_repo_full_name"
+    }
+  }
+}

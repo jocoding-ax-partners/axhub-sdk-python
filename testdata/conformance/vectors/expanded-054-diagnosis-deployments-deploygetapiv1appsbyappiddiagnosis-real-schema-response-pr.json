@@ -1,0 +1,46 @@
+{
+  "name": "diagnosis deployments.deployGetApiV1AppsByAppIDDiagnosis real-schema response preserves top-level fields",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "deployGetApiV1AppsByAppIDDiagnosis",
+    "context": "deployments",
+    "method": "deploy_get_api_v1_apps_by_app_id_diagnosis",
+    "pathParams": {
+      "appID": "app_1"
+    },
+    "query": {},
+    "body": null
+  },
+  "httpExpect": {
+    "method": "GET",
+    "path": "/api/v1/apps/app_1/diagnosis",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "app_id": "val_app_id",
+      "applicable": true,
+      "healthy": true,
+      "services": []
+    }
+  },
+  "expect": {
+    "ok": {
+      "appId": "val_app_id",
+      "applicable": true,
+      "healthy": true
+    }
+  }
+}
