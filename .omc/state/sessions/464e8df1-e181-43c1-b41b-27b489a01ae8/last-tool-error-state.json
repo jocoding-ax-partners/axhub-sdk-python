@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /Users/wongil/Desktop/work/jocoding/sdk\\necho \\\"=== go 생성 DataClient 가 노출하는 전체 메서드 (= 저수준으로 호출 가능한 것) ===\\\"\\ngrep -nE 'func \\\\(x \\\\*DataClient\\\\)' axhub-sdk-go/operations.go | sed 's/(c...",
+  "error": "Exit code 1\n=== go 생성 DataClient 가 노출하는 전체 메서드 (= 저수준으로 호출 가능한 것) ===\n606:func (x *DataClient) SchemaGetApiV1AppsByAppIDDbTables\n609:func (x *DataClient) SchemaGetApiV1AppsByAppIDDbTablesByTableRows\n612:func (x *DataClient) SchemaGetApiV1AppsByAppIDTables\n615:func (x *DataClient) SchemaPostApiV1AppsByAppIDTables\n618:func (x *DataClient) SchemaDeleteApiV1AppsByAppIDTablesByTableName\n621:func (x *DataClient) SchemaGetApiV1AppsByAppIDTablesByTableName\n624:func (x *DataClient) SchemaPostApiV1AppsByA...",
+  "timestamp": "2026-07-01T06:17:15.281Z",
+  "retry_count": 1
+}
