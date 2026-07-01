@@ -127,8 +127,8 @@ def _form_body(body: Any) -> bytes:
     return parse.urlencode({}).encode()
 
 class AxHubClient:
-    def __init__(self, *, base_url: str = DEFAULT_BASE_URL, token: str | None = None, token_type: TokenType | str | None = None, default_tenant_id: str | None = None, default_tenant_slug: str | None = None, schema_cache: Any = None):
-        self.base_url=base_url.rstrip('/'); self.token=token; self.token_type=TokenType(token_type) if token_type else None; self.default_tenant_id=default_tenant_id; self.default_tenant_slug=default_tenant_slug; self.apps=AppsClient(self); self._schema_cache_opt=schema_cache; self._ergo_data_client=None
+    def __init__(self, *, base_url: str = DEFAULT_BASE_URL, token: str | None = None, token_type: TokenType | str | None = None, default_tenant_id: str | None = None, default_tenant_slug: str | None = None):
+        self.base_url=base_url.rstrip('/'); self.token=token; self.token_type=TokenType(token_type) if token_type else None; self.default_tenant_id=default_tenant_id; self.default_tenant_slug=default_tenant_slug; self.apps=AppsClient(self)
     def redacted_token(self) -> str: return "" if not self.token else "***REDACTED***"
     def _auth_headers(self) -> dict[str, str]:
         headers: dict[str, str] = {}
