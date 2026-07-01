@@ -57,7 +57,9 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
         # must: member-mutable op that MUST succeed (Go t.Fatalf -> abort; addCleanup still runs).
         def must(label, op_id, pp=None, body=None):
             try:
-                return client.request(op_id, path_params=pp, body=body)
+                res = client.request(op_id, path_params=pp, body=body)
+                print(f"  {label}: ok")
+                return res
             except AxHubError as exc:
                 self.fail(f"MUST {label} ({op_id}): status={exc.status} code={exc.code} msg={exc}")
 
@@ -67,11 +69,13 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
             with self.subTest(kind="tolerate", label=label, op=op_id):
                 try:
                     client.request(op_id, path_params=pp, body=body)
+                    print(f"  {label}: ok (success)")
                 except AxHubError as exc:
                     self.assertIn(
                         exc.status, allowed,
                         f"TOLERATE {label} ({op_id}): status {exc.status} not in {allowed} ({exc.code})",
                     )
+                    print(f"  {label}: ok (tolerated {exc.status})")
 
         # expectFail: precondition genuinely unavailable -> MUST be a typed 4xx.
         def expect_fail(label, op_id, pp=None, body=None, allowed=()):
@@ -83,6 +87,7 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
                         exc.status, allowed,
                         f"EXPECTFAIL {label} ({op_id}): status {exc.status} not in {allowed} ({exc.code})",
                     )
+                    print(f"  {label}: ok (expected-fail {exc.status})")
                 else:
                     self.fail(f"EXPECTFAIL {label} ({op_id}): expected typed failure, got success")
 
@@ -253,6 +258,7 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
         # --- explicit teardown (cleanup stack also covers on failure) ---
         must("delete app", "appsDeleteApiV1AppsByAppID", {"appID": app_id})
         must("permanent delete app", "appsDeleteApiV1AppsByAppIDPermanent", {"appID": app_id})
+        print(f"destructive lifecycle OK (app={app_slug})")
 
 
 if __name__ == "__main__":
