@@ -1,5 +1,5 @@
 {
-  "name": "gateway.gatewayPostApiV1TenantsByTenantIDConnectors returns camelized response",
+  "name": "gateway.gatewayGetApiV1TenantsByTenantIDConnectorsByConnectorID returns camelized response",
   "client": {
     "tokenType": "jwt",
     "token": "jwt_x",
@@ -8,21 +8,19 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "gatewayPostApiV1TenantsByTenantIDConnectors",
+    "operationId": "gatewayGetApiV1TenantsByTenantIDConnectorsByConnectorID",
     "context": "gateway",
-    "method": "gateway_post_api_v1_tenants_by_tenant_id_connectors",
+    "method": "gateway_get_api_v1_tenants_by_tenant_id_connectors_by_connector_id",
     "pathParams": {
-      "tenantID": "tnt_1"
+      "tenantID": "tnt_1",
+      "connectorID": "conn_1"
     },
     "query": {},
-    "body": {
-      "name": "Vector Example",
-      "slug": "vector-example"
-    }
+    "body": null
   },
   "httpExpect": {
-    "method": "POST",
-    "path": "/api/v1/tenants/tnt_1/connectors",
+    "method": "GET",
+    "path": "/api/v1/tenants/tnt_1/connectors/conn_1",
     "headersInclude": [
       "x-request-id"
     ],
@@ -33,7 +31,7 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "gatewayPostApiV1TenantsByTenantIDConnectors",
+      "operation_id": "gatewayGetApiV1TenantsByTenantIDConnectorsByConnectorID",
       "context_name": "gateway",
       "result_id": "ok_gateway",
       "nested_value": {
@@ -43,7 +41,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "gatewayPostApiV1TenantsByTenantIDConnectors",
+      "operationId": "gatewayGetApiV1TenantsByTenantIDConnectorsByConnectorID",
       "contextName": "gateway",
       "resultId": "ok_gateway"
     }

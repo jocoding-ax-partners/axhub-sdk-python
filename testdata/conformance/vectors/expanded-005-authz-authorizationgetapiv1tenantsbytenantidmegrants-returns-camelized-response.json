@@ -1,37 +1,36 @@
 {
-  "name": "authz.authorizationGetApiV1TenantsByTenantIDGrantsByGrantID returns camelized response",
+  "name": "authz.authorizationGetApiV1TenantsByTenantIDMeGrants returns camelized response",
   "client": {
-    "tokenType": "pat",
-    "token": "pat_x",
+    "tokenType": "jwt",
+    "token": "jwt_x",
     "defaultTenantId": "tnt_1",
     "defaultTenantSlug": "acme"
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "authorizationGetApiV1TenantsByTenantIDGrantsByGrantID",
+    "operationId": "authorizationGetApiV1TenantsByTenantIDMeGrants",
     "context": "authz",
-    "method": "authorization_get_api_v1_tenants_by_tenant_id_grants_by_grant_id",
+    "method": "authorization_get_api_v1_tenants_by_tenant_id_me_grants",
     "pathParams": {
-      "tenantID": "tnt_1",
-      "grantID": "grt_1"
+      "tenantID": "tnt_1"
     },
     "query": {},
     "body": null
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/tenants/tnt_1/grants/grt_1",
+    "path": "/api/v1/tenants/tnt_1/me/grants",
     "headersInclude": [
       "x-request-id"
     ],
     "headersExact": {
-      "x-api-key": "pat_x"
+      "authorization": "Bearer jwt_x"
     }
   },
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "authorizationGetApiV1TenantsByTenantIDGrantsByGrantID",
+      "operation_id": "authorizationGetApiV1TenantsByTenantIDMeGrants",
       "context_name": "authz",
       "result_id": "ok_authz",
       "nested_value": {
@@ -41,7 +40,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "authorizationGetApiV1TenantsByTenantIDGrantsByGrantID",
+      "operationId": "authorizationGetApiV1TenantsByTenantIDMeGrants",
       "contextName": "authz",
       "resultId": "ok_authz"
     }

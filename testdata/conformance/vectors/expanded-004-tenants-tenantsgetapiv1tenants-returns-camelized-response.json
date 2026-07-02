@@ -1,5 +1,5 @@
 {
-  "name": "tenants.tenantsGetApiV1TenantsByTenantIDEmailDomains returns camelized response",
+  "name": "tenants.tenantsGetApiV1Tenants returns camelized response",
   "client": {
     "tokenType": "pat",
     "token": "pat_x",
@@ -8,18 +8,16 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "tenantsGetApiV1TenantsByTenantIDEmailDomains",
+    "operationId": "tenantsGetApiV1Tenants",
     "context": "tenants",
-    "method": "tenants_get_api_v1_tenants_by_tenant_id_email_domains",
-    "pathParams": {
-      "tenantID": "tnt_1"
-    },
+    "method": "tenants_get_api_v1_tenants",
+    "pathParams": {},
     "query": {},
     "body": null
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/tenants/tnt_1/email-domains",
+    "path": "/api/v1/tenants",
     "headersInclude": [
       "x-request-id"
     ],
@@ -30,7 +28,7 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "tenantsGetApiV1TenantsByTenantIDEmailDomains",
+      "operation_id": "tenantsGetApiV1Tenants",
       "context_name": "tenants",
       "result_id": "ok_tenants",
       "nested_value": {
@@ -40,7 +38,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "tenantsGetApiV1TenantsByTenantIDEmailDomains",
+      "operationId": "tenantsGetApiV1Tenants",
       "contextName": "tenants",
       "resultId": "ok_tenants"
     }

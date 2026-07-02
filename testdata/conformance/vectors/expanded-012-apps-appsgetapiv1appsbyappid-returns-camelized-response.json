@@ -1,5 +1,5 @@
 {
-  "name": "cost.costGetApiV1TenantsByTenantIDCostByApp returns camelized response",
+  "name": "apps.appsGetApiV1AppsByAppID returns camelized response",
   "client": {
     "tokenType": "pat",
     "token": "pat_x",
@@ -8,18 +8,18 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "costGetApiV1TenantsByTenantIDCostByApp",
-    "context": "cost",
-    "method": "cost_get_api_v1_tenants_by_tenant_id_cost_by_app",
+    "operationId": "appsGetApiV1AppsByAppID",
+    "context": "apps",
+    "method": "apps_get_api_v1_apps_by_app_id",
     "pathParams": {
-      "tenantID": "tnt_1"
+      "appID": "app_1"
     },
     "query": {},
     "body": null
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/tenants/tnt_1/cost/by-app",
+    "path": "/api/v1/apps/app_1",
     "headersInclude": [
       "x-request-id"
     ],
@@ -30,9 +30,9 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "costGetApiV1TenantsByTenantIDCostByApp",
-      "context_name": "cost",
-      "result_id": "ok_cost",
+      "operation_id": "appsGetApiV1AppsByAppID",
+      "context_name": "apps",
+      "result_id": "ok_apps",
       "nested_value": {
         "inner_key": "inner"
       }
@@ -40,9 +40,9 @@
   },
   "expect": {
     "ok": {
-      "operationId": "costGetApiV1TenantsByTenantIDCostByApp",
-      "contextName": "cost",
-      "resultId": "ok_cost"
+      "operationId": "appsGetApiV1AppsByAppID",
+      "contextName": "apps",
+      "resultId": "ok_apps"
     }
   }
 }
