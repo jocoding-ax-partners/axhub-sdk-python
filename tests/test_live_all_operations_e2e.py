@@ -26,7 +26,6 @@ HIGH_RISK_TENANT_OPS = {
 }
 HIGH_RISK_APP_OPS = {
     "appsDeleteApiV1AppsByAppID",
-    "appsDeleteApiV1AppsByAppIDPermanent",
     "deployPostApiV1AppsByAppIDDeploymentsByDidCancel",
     "deployPostApiV1AppsByAppIDDeploymentsByDidRollback",
 }
@@ -144,11 +143,10 @@ class LiveAllOperationsE2ETest(unittest.TestCase):
                 results.append(result)
         finally:
             if created_fixture and fixture.get("appID"):
-                for operation_id in ("appsDeleteApiV1AppsByAppID", "appsDeleteApiV1AppsByAppIDPermanent"):
-                    try:
-                        client.request(operation_id, path_params={"appID": fixture["appID"]})
-                    except AxHubError:
-                        pass
+                try:
+                    client.request("appsDeleteApiV1AppsByAppID", path_params={"appID": fixture["appID"]})
+                except AxHubError:
+                    pass
 
         summary = {
             "sdk": "python",
