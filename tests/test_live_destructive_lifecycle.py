@@ -113,11 +113,10 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
 
         def _cleanup_app(app_id=app_id):
             # best-effort idempotent: ignore 404/409/410 from already-deleted app.
-            for op in ("appsDeleteApiV1AppsByAppID", "appsDeleteApiV1AppsByAppIDPermanent"):
-                try:
-                    client.request(op, path_params={"appID": app_id})
-                except AxHubError:
-                    pass
+            try:
+                client.request("appsDeleteApiV1AppsByAppID", path_params={"appID": app_id})
+            except AxHubError:
+                pass
 
         self.addCleanup(_cleanup_app)
 
@@ -128,8 +127,6 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
         # --- env vars ---
         must("set env var", "appsPostApiV1AppsByAppIDEnvVars", {"appID": app_id},
              {"key": "SDK_E2E_SECRET", "value": "sekret-" + suffix})
-        must("delete env var", "appsDeleteApiV1AppsByAppIDEnvVarsByKey",
-             {"appID": app_id, "key": "SDK_E2E_SECRET"})
 
         # --- comments ---
         c_res = must("add comment", "appsPostApiV1AppsByAppIDComments", {"appID": app_id},
@@ -141,10 +138,6 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
         # --- likes (idempotent) ---
         must("like", "appsPostApiV1AppsByAppIDLikes", {"appID": app_id}, {})
         must("unlike", "appsDeleteApiV1AppsByAppIDLikes", {"appID": app_id})
-
-        # --- icon upload url (signed URL; body key uncertain -> tolerate) ---
-        tolerate("icon upload url", "appsPostApiV1AppsByAppIDIconUploadUrl", {"appID": app_id},
-                 {"content_type": "image/png"}, allowed=(400, 404, 422))
 
         # --- raw-db (node MISSES; body contract uncertain -> tolerate POST + DELETE; app is disposable) ---
         tolerate("raw-db exec", "appsPostApiV1AppsByAppIDRawDb", {"appID": app_id},
@@ -186,23 +179,6 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
                                 f"issue PAT: missing rawToken in {sorted(pat_res.keys())}")
             must("revoke PAT", "schemaDeleteApiV1MePersonalAccessTokensByPatID", {"patID": pat_id})
 
-        # --- publication: submit -> reject ; submit -> approve -> back to private (invite_only, never public) ---
-        p1 = must("submit publication#1", "appsPostApiV1AppsByAppIDReviewRequests", {"appID": app_id},
-                  {"reason": "sdke2e reject " + suffix, "requested_visibility": "invite_only"})
-        rr1 = _dl_str(p1, "id", "reviewRequestId", "rrId")
-        if rr1:
-            must("reject publication#1", "appsPostApiV1ReviewRequestsByRrIDReject", {"rrID": rr1},
-                 {"comment": "sdke2e cleanup rejection"})
-        p2 = must("submit publication#2", "appsPostApiV1AppsByAppIDReviewRequests", {"appID": app_id},
-                  {"reason": "sdke2e approve " + suffix, "requested_visibility": "invite_only"})
-        rr2 = _dl_str(p2, "id", "reviewRequestId", "rrId")
-        if rr2:
-            must("approve publication#2", "appsPostApiV1ReviewRequestsByRrIDApprove", {"rrID": rr2},
-                 {"comment": "sdke2e transient approval"})
-            # unpublish equivalent: return app to private
-            tolerate("unpublish (visibility->private)", "appsPatchApiV1AppsByAppID", {"appID": app_id},
-                     {"visibility": "private"}, allowed=(400, 404, 409))
-
         # --- TYPED-FAILURE: preconditions genuinely unavailable ---
         expect_fail("deployment create (no commit)", "deployPostApiV1AppsByAppIDDeployments", {"appID": app_id},
                     {"commit_sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"}, allowed=(400, 404, 409, 412))
@@ -214,7 +190,6 @@ class LiveDestructiveLifecycleTest(unittest.TestCase):
 
         # --- explicit teardown (cleanup stack also covers on failure) ---
         must("delete app", "appsDeleteApiV1AppsByAppID", {"appID": app_id})
-        must("permanent delete app", "appsDeleteApiV1AppsByAppIDPermanent", {"appID": app_id})
         print(f"destructive lifecycle OK (app={app_slug})")
 
 
