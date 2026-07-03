@@ -31,8 +31,8 @@ class RegressionTest(unittest.TestCase):
         with self.assertRaises(AxHubError) as cm: client.apps.create({"slug":"my-app"})
         self.assertEqual((cm.exception.category, cm.exception.code), ("tenant_id_required", "tenant_id_required"))
     def test_route_and_error_coverage(self):
-        self.assertEqual(len(ROUTES), 85)
-        self.assertEqual(len(ERROR_CODES), 101)
+        self.assertEqual(len(ROUTES), 86)
+        self.assertEqual(len(ERROR_CODES), 106)
         self.assertEqual(ERROR_CODES["slug_taken"].category, "conflict")
         for name in ["apps", "identity", "tenants", "authz", "audit", "gateway", "data", "deployments"]:
             self.assertIn(name, CONTEXT_ROUTES)

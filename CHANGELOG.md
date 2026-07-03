@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.0 — 2026-07-03
+
+### Added
+- `tenants_get_api_v1_tenants_by_tenant_id_org_directory` — `GET /api/v1/tenants/{tenantID}/org-directory`. SCIM 사내 조직도 조회: 부서(그룹)→인원 구조, 아직 가입하지 않은 인원 포함(`joined` 플래그로 구분), 표시 이름 없으면 이메일 폴백. 호출 권한 tenant_member.
+
 ## v0.7.0 — 2026-07-02
 
 ### Removed (developer-surface reduction)
