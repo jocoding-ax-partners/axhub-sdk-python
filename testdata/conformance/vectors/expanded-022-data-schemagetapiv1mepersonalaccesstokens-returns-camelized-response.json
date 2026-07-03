@@ -1,36 +1,34 @@
 {
-  "name": "data.schemaGetApiV1AppsByAppIDDbTables returns camelized response",
+  "name": "data.schemaGetApiV1MePersonalAccessTokens returns camelized response",
   "client": {
-    "tokenType": "jwt",
-    "token": "jwt_x",
+    "tokenType": "pat",
+    "token": "pat_x",
     "defaultTenantId": "tnt_1",
     "defaultTenantSlug": "acme"
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "schemaGetApiV1AppsByAppIDDbTables",
+    "operationId": "schemaGetApiV1MePersonalAccessTokens",
     "context": "data",
-    "method": "schema_get_api_v1_apps_by_app_id_db_tables",
-    "pathParams": {
-      "appID": "app_1"
-    },
+    "method": "schema_get_api_v1_me_personal_access_tokens",
+    "pathParams": {},
     "query": {},
     "body": null
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/apps/app_1/db/tables",
+    "path": "/api/v1/me/personal-access-tokens",
     "headersInclude": [
       "x-request-id"
     ],
     "headersExact": {
-      "authorization": "Bearer jwt_x"
+      "x-api-key": "pat_x"
     }
   },
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "schemaGetApiV1AppsByAppIDDbTables",
+      "operation_id": "schemaGetApiV1MePersonalAccessTokens",
       "context_name": "data",
       "result_id": "ok_data",
       "nested_value": {
@@ -40,7 +38,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "schemaGetApiV1AppsByAppIDDbTables",
+      "operationId": "schemaGetApiV1MePersonalAccessTokens",
       "contextName": "data",
       "resultId": "ok_data"
     }

@@ -1,5 +1,5 @@
 {
-  "name": "gateway.gatewayGetApiV1TenantsByTenantIDConnectors returns camelized response",
+  "name": "tenants.tenantsGetApiV1TenantsByTenantIDOrgDirectory returns camelized response",
   "client": {
     "tokenType": "jwt",
     "token": "jwt_x",
@@ -8,9 +8,9 @@
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "gatewayGetApiV1TenantsByTenantIDConnectors",
-    "context": "gateway",
-    "method": "gateway_get_api_v1_tenants_by_tenant_id_connectors",
+    "operationId": "tenantsGetApiV1TenantsByTenantIDOrgDirectory",
+    "context": "tenants",
+    "method": "tenants_get_api_v1_tenants_by_tenant_id_org_directory",
     "pathParams": {
       "tenantID": "tnt_1"
     },
@@ -19,7 +19,7 @@
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/tenants/tnt_1/connectors",
+    "path": "/api/v1/tenants/tnt_1/org-directory",
     "headersInclude": [
       "x-request-id"
     ],
@@ -30,9 +30,9 @@
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "gatewayGetApiV1TenantsByTenantIDConnectors",
-      "context_name": "gateway",
-      "result_id": "ok_gateway",
+      "operation_id": "tenantsGetApiV1TenantsByTenantIDOrgDirectory",
+      "context_name": "tenants",
+      "result_id": "ok_tenants",
       "nested_value": {
         "inner_key": "inner"
       }
@@ -40,9 +40,9 @@
   },
   "expect": {
     "ok": {
-      "operationId": "gatewayGetApiV1TenantsByTenantIDConnectors",
-      "contextName": "gateway",
-      "resultId": "ok_gateway"
+      "operationId": "tenantsGetApiV1TenantsByTenantIDOrgDirectory",
+      "contextName": "tenants",
+      "resultId": "ok_tenants"
     }
   }
 }
