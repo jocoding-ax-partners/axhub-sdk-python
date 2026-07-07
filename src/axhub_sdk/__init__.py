@@ -193,13 +193,60 @@ class AxHubClient:
         if body is not None:
             data=json.dumps(body).encode(); content_type='application/json'
         return self._send(route['method'], url, data=data, content_type=content_type)
+
+# --- Raw DB read facade (typed, read-only) — mirrors Go client.Apps.RawDb() / Node sdk.apps.rawDb.
+# Response keys arrive camelCased (request() runs the camelizing transport), so DTOs map camelCase keys.
+@dataclass(frozen=True)
+class RawDbColumn: name: str; data_type: str; nullable: bool
+@dataclass(frozen=True)
+class RawDbTable: name: str; managed: bool; columns: list[RawDbColumn]
+@dataclass(frozen=True)
+class RawDbTableRows: rows: list[dict[str, Any]]; page: int; per_page: int; has_more: bool
+
+def _raw_db_column(d: Mapping[str, Any]) -> RawDbColumn:
+    return RawDbColumn(name=str(d.get('name','')), data_type=str(d.get('dataType','')), nullable=bool(d.get('nullable', False)))
+def _raw_db_table(d: Mapping[str, Any]) -> RawDbTable:
+    cols=d.get('columns') or []
+    return RawDbTable(name=str(d.get('name','')), managed=bool(d.get('managed', False)), columns=[_raw_db_column(c) for c in cols if isinstance(c, dict)])
+
+class RawDbClient:
+    """Typed, read-only raw-DB facade. Reach it via client.apps.raw_db (mirror of Node sdk.apps.rawDb)."""
+    def __init__(self, apps: 'AppsClient'): self._apps=apps
+    def tables(self, app_id: str) -> list[RawDbTable]:
+        """List the raw DB tables for an app, with typed column metadata.
+
+        A successful call that returns an empty list means the app genuinely has no
+        raw DB tables (raw DB not enabled, or zero tables). An authentication or
+        permission failure raises AxHubError instead — so an empty list with no
+        exception means "empty", not "auth failed".
+        """
+        if not app_id: raise AxHubError('validation','required','appID is required')
+        resp=self._apps._client.request('schemaGetApiV1AppsByAppIDDbTables', path_params={'appID': app_id})
+        return [_raw_db_table(t) for t in (resp.get('tables') or []) if isinstance(t, dict)]
+    def table_rows(self, app_id: str, table: str, *, per_page: int | None = None, page: int | None = None) -> RawDbTableRows:
+        """Read one page of rows from a raw DB table. has_more is a per_page+1 probe; there is no exact total."""
+        if not app_id or not table: raise AxHubError('validation','required','appID and table are required')
+        query: dict[str, str] = {}
+        if per_page is not None: query['per_page']=str(per_page)
+        if page is not None: query['page']=str(page)
+        resp=self._apps._client.request('schemaGetApiV1AppsByAppIDDbTablesByTableRows', path_params={'appID': app_id, 'table': table}, query=query or None)
+        return RawDbTableRows(rows=list(resp.get('rows') or []), page=int(resp.get('page') or 0), per_page=int(resp.get('perPage') or 0), has_more=bool(resp.get('hasMore') or False))
+
+class AsyncRawDbClient:
+    """Async parallel of RawDbClient. Reach it via async client.apps.raw_db."""
+    def __init__(self, apps: 'AsyncAppsClient'): self._apps=apps
+    async def tables(self, app_id: str) -> list[RawDbTable]:
+        c=self._apps._client; return await c._run(lambda: c._sync.apps.raw_db.tables(app_id))
+    async def table_rows(self, app_id: str, table: str, *, per_page: int | None = None, page: int | None = None) -> RawDbTableRows:
+        c=self._apps._client; return await c._run(lambda: c._sync.apps.raw_db.table_rows(app_id, table, per_page=per_page, page=page))
+
 class AppsClient:
-    def __init__(self, client: AxHubClient): self._client=client
+    def __init__(self, client: AxHubClient): self._client=client; self.raw_db=RawDbClient(self)
     def create(self, body: Mapping[str, Any]) -> dict[str, Any]:
         if not self._client.default_tenant_id: raise AxHubError('tenant_id_required','tenant_id_required','default tenant id is required')
         return self._client.request('appsPostApiV1TenantsByTenantIDApps', path_params={'tenantID': self._client.default_tenant_id}, body=dict(body))
 class AsyncAppsClient:
-    def __init__(self, client: 'AsyncAxHubClient'): self._client=client
+    def __init__(self, client: 'AsyncAxHubClient'): self._client=client; self.raw_db=AsyncRawDbClient(self)
     async def create(self, body: Mapping[str, Any]) -> dict[str, Any]: return await self._client._run(lambda: self._client._sync.apps.create(body))
 class AsyncAxHubClient:
     apps = None
