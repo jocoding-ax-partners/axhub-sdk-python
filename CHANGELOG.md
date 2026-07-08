@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.11.0 — 2026-07-08
+
+### Added
+- 에러 카탈로그 106→117 — Google Workspace 조직도 연동(spec 109/113)·디렉터리 단일소스(spec 114) 에러 코드 11종 추가 (`google_domain_taken`, `directory_source_conflict`, `group_scim_managed` 등; backend 73e89024 re-pin).
+
+### Note
+- v0.10.0 태그는 소스 버전 bump 누락으로 릴리스 워크플로가 실패해 PyPI 에 발행되지 않았다. 해당 변경(raw DB typed helper, live QA 정렬)은 본 릴리스에 포함되어 발행된다.
+
 ## v0.10.0 — 2026-07-08
 
 ### Added
