@@ -1,0 +1,29 @@
+name: Notify MCP corpus-sync
+
+# SDK 릴리스가 발행되면 axhub-mcp 의 corpus-sync 를 즉시 dispatch 한다 (event-driven).
+# secret AXHUB_MCP_DISPATCH_TOKEN (fine-grained PAT: repo=axhub-mcp, Actions: Read
+# and write) 이 없으면 조용히 스킵 — axhub-mcp 쪽 2시간 freshness self-heal 폴링이
+# 백업으로 커버한다. workflow_dispatch 는 릴리스 없이 이벤트 경로를 시험하는 용도.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch corpus-sync on axhub-mcp
+        env:
+          GH_TOKEN: ${{ secrets.AXHUB_MCP_DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::notice::AXHUB_MCP_DISPATCH_TOKEN 미설정 — 스킵 (axhub-mcp 2h 폴링이 커버)"
+            exit 0
+          fi
+          gh workflow run corpus-sync.yml --repo jocoding-ax-partners/axhub-mcp --ref main
+          echo "✅ corpus-sync dispatched (release: ${GITHUB_REF_NAME:-manual})"
