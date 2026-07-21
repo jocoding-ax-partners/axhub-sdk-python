@@ -1,0 +1,51 @@
+{
+  "name": "notifications.notificationsPostApiV1MeNotificationsByNotificationIDRead returns camelized response",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "notificationsPostApiV1MeNotificationsByNotificationIDRead",
+    "context": "notifications",
+    "method": "notifications_post_api_v1_me_notifications_by_notification_id_read",
+    "pathParams": {
+      "notificationID": "notificationid_1"
+    },
+    "query": {},
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/me/notifications/notificationid_1/read",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "operation_id": "notificationsPostApiV1MeNotificationsByNotificationIDRead",
+      "context_name": "notifications",
+      "result_id": "ok_notifications",
+      "nested_value": {
+        "inner_key": "inner"
+      }
+    }
+  },
+  "expect": {
+    "ok": {
+      "operationId": "notificationsPostApiV1MeNotificationsByNotificationIDRead",
+      "contextName": "notifications",
+      "resultId": "ok_notifications"
+    }
+  }
+}

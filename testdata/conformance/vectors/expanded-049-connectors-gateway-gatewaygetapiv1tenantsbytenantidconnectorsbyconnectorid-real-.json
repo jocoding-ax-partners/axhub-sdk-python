@@ -31,6 +31,7 @@
   "mockResponse": {
     "status": 200,
     "body": {
+      "app_id": "val_app_id",
       "classification": [],
       "config": {},
       "created_at": "val_created_at",
@@ -47,6 +48,7 @@
   },
   "expect": {
     "ok": {
+      "appId": "val_app_id",
       "createdAt": "val_created_at",
       "description": "val_description",
       "enabled": true,

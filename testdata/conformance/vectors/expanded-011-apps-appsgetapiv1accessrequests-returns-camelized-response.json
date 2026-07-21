@@ -1,36 +1,34 @@
 {
-  "name": "apps.appsGetApiV1AppsByAppID returns camelized response",
+  "name": "apps.appsGetApiV1AccessRequests returns camelized response",
   "client": {
-    "tokenType": "pat",
-    "token": "pat_x",
+    "tokenType": "jwt",
+    "token": "jwt_x",
     "defaultTenantId": "tnt_1",
     "defaultTenantSlug": "acme"
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "appsGetApiV1AppsByAppID",
+    "operationId": "appsGetApiV1AccessRequests",
     "context": "apps",
-    "method": "apps_get_api_v1_apps_by_app_id",
-    "pathParams": {
-      "appID": "app_1"
-    },
+    "method": "apps_get_api_v1_access_requests",
+    "pathParams": {},
     "query": {},
     "body": null
   },
   "httpExpect": {
     "method": "GET",
-    "path": "/api/v1/apps/app_1",
+    "path": "/api/v1/access-requests",
     "headersInclude": [
       "x-request-id"
     ],
     "headersExact": {
-      "x-api-key": "pat_x"
+      "authorization": "Bearer jwt_x"
     }
   },
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "appsGetApiV1AppsByAppID",
+      "operation_id": "appsGetApiV1AccessRequests",
       "context_name": "apps",
       "result_id": "ok_apps",
       "nested_value": {
@@ -40,7 +38,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "appsGetApiV1AppsByAppID",
+      "operationId": "appsGetApiV1AccessRequests",
       "contextName": "apps",
       "resultId": "ok_apps"
     }

@@ -1,0 +1,46 @@
+{
+  "name": "notifications.notificationsGetApiV1MeNotifications returns camelized response",
+  "client": {
+    "tokenType": "pat",
+    "token": "pat_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "notificationsGetApiV1MeNotifications",
+    "context": "notifications",
+    "method": "notifications_get_api_v1_me_notifications",
+    "pathParams": {},
+    "query": {},
+    "body": null
+  },
+  "httpExpect": {
+    "method": "GET",
+    "path": "/api/v1/me/notifications",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "x-api-key": "pat_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "operation_id": "notificationsGetApiV1MeNotifications",
+      "context_name": "notifications",
+      "result_id": "ok_notifications",
+      "nested_value": {
+        "inner_key": "inner"
+      }
+    }
+  },
+  "expect": {
+    "ok": {
+      "operationId": "notificationsGetApiV1MeNotifications",
+      "contextName": "notifications",
+      "resultId": "ok_notifications"
+    }
+  }
+}

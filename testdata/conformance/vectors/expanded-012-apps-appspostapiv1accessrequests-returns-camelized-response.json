@@ -1,36 +1,37 @@
 {
-  "name": "apps.appsDeleteApiV1AppsByAppID returns camelized response",
+  "name": "apps.appsPostApiV1AccessRequests returns camelized response",
   "client": {
-    "tokenType": "jwt",
-    "token": "jwt_x",
+    "tokenType": "pat",
+    "token": "pat_x",
     "defaultTenantId": "tnt_1",
     "defaultTenantSlug": "acme"
   },
   "call": {
     "symbol": "sdk.operation",
-    "operationId": "appsDeleteApiV1AppsByAppID",
+    "operationId": "appsPostApiV1AccessRequests",
     "context": "apps",
-    "method": "apps_delete_api_v1_apps_by_app_id",
-    "pathParams": {
-      "appID": "app_1"
-    },
+    "method": "apps_post_api_v1_access_requests",
+    "pathParams": {},
     "query": {},
-    "body": null
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
   },
   "httpExpect": {
-    "method": "DELETE",
-    "path": "/api/v1/apps/app_1",
+    "method": "POST",
+    "path": "/api/v1/access-requests",
     "headersInclude": [
       "x-request-id"
     ],
     "headersExact": {
-      "authorization": "Bearer jwt_x"
+      "x-api-key": "pat_x"
     }
   },
   "mockResponse": {
     "status": 200,
     "body": {
-      "operation_id": "appsDeleteApiV1AppsByAppID",
+      "operation_id": "appsPostApiV1AccessRequests",
       "context_name": "apps",
       "result_id": "ok_apps",
       "nested_value": {
@@ -40,7 +41,7 @@
   },
   "expect": {
     "ok": {
-      "operationId": "appsDeleteApiV1AppsByAppID",
+      "operationId": "appsPostApiV1AccessRequests",
       "contextName": "apps",
       "resultId": "ok_apps"
     }

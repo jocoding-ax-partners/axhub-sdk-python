@@ -8,6 +8,7 @@ class OperationsCoverageTest(unittest.TestCase):
         contexts = {
             "apps": client.apps, "identity": client.identity, "tenants": client.tenants, "authz": client.authz,
             "audit": client.audit, "gateway": client.gateway, "data": client.data, "deployments": client.deployments,
+            "notifications": client.notifications,
         }
         self.assertEqual(len(OPERATION_METHODS), len(ROUTES))
         for item in OPERATION_METHODS:

@@ -1,0 +1,44 @@
+{
+  "name": "check-availability staging suffix maps reason invalid",
+  "client": {
+    "tokenType": "jwt",
+    "token": "jwt_x",
+    "defaultTenantId": "tnt_1"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "appsGetApiV1TenantsByTenantIDAppsCheckAvailability",
+    "context": "apps",
+    "method": "apps_get_api_v1_tenants_by_tenant_id_apps_check_availability",
+    "pathParams": {
+      "tenantID": "tnt_1"
+    },
+    "query": {
+      "slug": "foo-staging"
+    },
+    "body": null
+  },
+  "httpExpect": {
+    "method": "GET",
+    "path": "/api/v1/tenants/tnt_1/apps/check-availability",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "authorization": "Bearer jwt_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "available": false,
+      "reason": "invalid"
+    }
+  },
+  "expect": {
+    "ok": {
+      "available": false,
+      "reason": "invalid"
+    }
+  }
+}

@@ -95,7 +95,7 @@ class _OperationHandler(BaseHTTPRequestHandler):
 
 class AllOperationFacadesE2ETest(unittest.TestCase):
     def test_all_generated_operation_facades_make_http_requests(self):
-        self.assertEqual(len(ROUTES), 87)
+        self.assertEqual(len(ROUTES), 97)
         self.assertEqual(len(OPERATION_METHODS), len(ROUTES))
         _OperationHandler.expected_index = 0
         _OperationHandler.failures = []
@@ -117,6 +117,7 @@ class AllOperationFacadesE2ETest(unittest.TestCase):
                 "gateway": client.gateway,
                 "data": client.data,
                 "deployments": client.deployments,
+                "notifications": client.notifications,
             }
             for item in OPERATION_METHODS:
                 route = _ROUTE_BY_OPERATION[item["operationId"]]

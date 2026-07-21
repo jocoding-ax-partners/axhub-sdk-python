@@ -1,0 +1,49 @@
+{
+  "name": "notifications.notificationsPostApiV1AppMails returns camelized response",
+  "client": {
+    "tokenType": "pat",
+    "token": "pat_x",
+    "defaultTenantId": "tnt_1",
+    "defaultTenantSlug": "acme"
+  },
+  "call": {
+    "symbol": "sdk.operation",
+    "operationId": "notificationsPostApiV1AppMails",
+    "context": "notifications",
+    "method": "notifications_post_api_v1_app_mails",
+    "pathParams": {},
+    "query": {},
+    "body": {
+      "name": "Vector Example",
+      "slug": "vector-example"
+    }
+  },
+  "httpExpect": {
+    "method": "POST",
+    "path": "/api/v1/app/mails",
+    "headersInclude": [
+      "x-request-id"
+    ],
+    "headersExact": {
+      "x-api-key": "pat_x"
+    }
+  },
+  "mockResponse": {
+    "status": 200,
+    "body": {
+      "operation_id": "notificationsPostApiV1AppMails",
+      "context_name": "notifications",
+      "result_id": "ok_notifications",
+      "nested_value": {
+        "inner_key": "inner"
+      }
+    }
+  },
+  "expect": {
+    "ok": {
+      "operationId": "notificationsPostApiV1AppMails",
+      "contextName": "notifications",
+      "resultId": "ok_notifications"
+    }
+  }
+}

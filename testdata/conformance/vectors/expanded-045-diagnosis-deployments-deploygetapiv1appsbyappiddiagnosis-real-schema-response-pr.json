@@ -33,7 +33,8 @@
       "app_id": "val_app_id",
       "applicable": true,
       "healthy": true,
-      "services": []
+      "services": [],
+      "warnings": []
     }
   },
   "expect": {
