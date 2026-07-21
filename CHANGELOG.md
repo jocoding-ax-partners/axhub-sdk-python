@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.12.0 — 2026-07-21
+
+### Added
+- 라우트 87→97 — notifications(사용자 알림함 3·앱 발송 2)·access-requests 4·배포별 진단 1 op facade 추가 (backend 8714f5cd re-pin, allowlist 87→97, 신규 notifications context).
+- 에러 카탈로그 117→133 — `feature_disabled`·`promote_snapshot_missing`·`rate_limited`·`staging_namespace_too_long` 등 (backend spec 128/133/134 + PR #618).
+
+### Fixed
+- 에러 카탈로그 category 오염 교정 — payment 계열 10종의 category 가 Go 식별자 `CategoryPaymentRequired` 문자열로 잘못 들어가던 것을 wire 값 `payment_required` 로 복구.
+
+### Changed
+- conformance corpus 45→49 — typed-error 3종(feature_disabled·promote_snapshot_missing·402 payment) + check-availability `reason:"invalid"` 회귀 벡터.
+
 ## v0.11.0 — 2026-07-08
 
 ### Added
