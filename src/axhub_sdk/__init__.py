@@ -126,6 +126,7 @@ ERROR_CODES = {
     "slug_taken": ErrorInfo("conflict", 409, False),
     "staging_already_enabled": ErrorInfo("conflict", 409, False),
     "staging_mismatch": ErrorInfo("precondition_failed", 412, False),
+    "staging_namespace_too_long": ErrorInfo("precondition_failed", 412, False),
     "staging_not_enabled": ErrorInfo("precondition_failed", 412, False),
     "staging_required": ErrorInfo("precondition_failed", 412, False),
     "static_release_in_use": ErrorInfo("conflict", 409, False),
