@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.13.0 — 2026-08-23
+
+### Fixed
+- 에러 카탈로그가 backend 와 3주 벌어져 있던 것을 동기화 (133 → 182). 카탈로그는 응답에 `category`/`retryable` 이 없을 때의 **폴백**이라 조용히 틀린다 — 빠진 코드는 category `unknown` + `retryable=False` 로 떨어져서, 재시도해야 할 실패(`connector_probe_unavailable` 502 등)를 영구 실패로 다루게 된다.
+- 죽은 코드 6종 제거 — `synology_invalid_credential`·`synology_probe_failed`·`synology_relay_unreachable` (backend 에서 synology 엔진 철거, 사내망 자원은 사이트 에이전트 터널로 일원화)·`domain_blocked`·`already_terminal`·`invalid_seat_count`.
+
+### Added
+- 에러 코드 55종 추가. 게이트웨이 커넥터 표면이 특히 크게 빠져 있었다 — `scope_out_of_range`(폴더 범위 밖 거부)·`connector_probe_unavailable`·`connector_probe_failed`·`connector_quarantined`·`owner_consent_required`·`scope_requires_target`·`invalid_manifest`·`resource_browse_restricted`. 그 밖에 결제·백업·소스업로드·AI 키 계열.
+- 회귀 테스트 2종 — 삭제된 코드가 되살아나지 않는지, 재시도 가능 여부(`retryable`)가 뒤집히지 않는지 고정.
+
+### Note
+- 이번 동기화는 backend `internal/platform/httpx/codes.go` @ `43193907` 에서 직접 추출했다. 중간 단계인 `axhub-sdk-spec` 저장소는 backend `36d5f38f`(2026-07-30)에 핀되어 있어 그 자체로 낡았고(라우트 +115/−9), 재핀은 node·java·kotlin SDK 와 MCP corpus 까지 함께 움직여야 해서 별도 작업으로 남긴다. 라우트 표면(`ROUTES` 97개)은 이번 릴리스에서 건드리지 않았다.
+
 ## v0.12.0 — 2026-07-21
 
 ### Added
