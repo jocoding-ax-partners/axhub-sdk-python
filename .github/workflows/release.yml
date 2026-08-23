@@ -66,7 +66,10 @@ jobs:
         with:
           name: python-dist
           path: dist
-      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # pypa/gh-action-pypi-publish v1.14.0
+      # v1.14.2 는 내부 Twine 을 v7 로 올려 **metadata 2.5 업로드**를 허용한다.
+      # v1.14.0 의 Twine 은 hatchling 이 요즘 찍는 `Metadata-Version: 2.5` 를
+      # 모르고 InvalidDistribution 으로 거절한다 — v0.13.0 발행이 여기서 막혔다.
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # pypa/gh-action-pypi-publish v1.14.2
         with:
           packages-dir: dist
 
