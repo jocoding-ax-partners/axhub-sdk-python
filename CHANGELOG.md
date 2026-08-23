@@ -2,6 +2,9 @@
 
 ## v0.13.0 — 2026-08-23
 
+### Note
+- 최초 태그의 발행이 PyPI 업로드 단계에서 실패했다 — `gh-action-pypi-publish` v1.14.0 이 내장한 Twine 이 hatchling 이 찍는 `Metadata-Version: 2.5` 를 몰라 `InvalidDistribution` 으로 거절했다. 액션을 v1.14.2(Twine v7)로 올려 재발행했다. 패키지 내용은 동일하다.
+
 ### Fixed
 - 에러 카탈로그가 backend 와 3주 벌어져 있던 것을 동기화 (133 → 182). 카탈로그는 응답에 `category`/`retryable` 이 없을 때의 **폴백**이라 조용히 틀린다 — 빠진 코드는 category `unknown` + `retryable=False` 로 떨어져서, 재시도해야 할 실패(`connector_probe_unavailable` 502 등)를 영구 실패로 다루게 된다.
 - 죽은 코드 6종 제거 — `synology_invalid_credential`·`synology_probe_failed`·`synology_relay_unreachable` (backend 에서 synology 엔진 철거, 사내망 자원은 사이트 에이전트 터널로 일원화)·`domain_blocked`·`already_terminal`·`invalid_seat_count`.
