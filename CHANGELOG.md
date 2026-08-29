@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Docs
+- README 에 커넥터 게이트웨이 사용법을 추가했어요 — `me/grants` 로 내 권한(대상 목록·`scope_levels` 의 read/write)을 확인하는 예시와, `gateway invoke` 로 파일을 올리는 예시(바디는 base64, 3MiB 넘으면 `Content-Range` 로 분할). 권한 두 축(프리셋 메서드 × grant scope 레벨)과 거절 코드 표도 함께 적었어요. 코드·라우트·에러 카탈로그는 그대로예요.
+- README 설치 예시의 버전 핀이 `0.4.0` 에 멈춰 있던 것을 현재 릴리스 `0.13.0` 으로 맞췄어요.
+
 ## v0.13.0 — 2026-08-23
 
 ### Note
