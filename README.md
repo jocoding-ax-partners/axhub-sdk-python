@@ -5,7 +5,7 @@ AX Hub Python SDK for `https://api.axhub.ai`. It gives agents a dependency-light
 ## Install
 
 ```bash
-pip install axhub-sdk==0.4.0
+pip install axhub-sdk==0.13.0
 ```
 
 Local development:
@@ -98,6 +98,98 @@ Important semantics from live QA:
 - App database access is raw: `appsPostApiV1AppsByAppIDRawDb` issues a dedicated Postgres role and injects `DATABASE_URL` on the next deploy (the connection string is never returned). The app does its own row CRUD via direct SQL; the SDK exposes admin introspection/browse only (`schemaGetApiV1AppsByAppIDDbTables` / `...DbTablesByTableRows`).
 - Deployment creation without a connected git/bootstrap source can return a precondition-style 4xx. That verifies SDK error handling, not a deploy bug.
 
+
+## Connector gateway: check your grants, then write a file
+
+Gateway calls pass two independent gates, and both have to say yes:
+
+1. **Preset methods.** The preset attached to the grant is the action template — it decides which HTTP methods and paths the connector will accept. An upload needs a preset that allows `PUT` on the upload path; anything outside it comes back as `action_denied`.
+2. **Grant scope levels.** `scope_levels` maps each in-scope target to `read` or `write`. A target sitting at `read` refuses the write even when the preset allows `PUT`. A grant with no `scope_levels` at all is governed by the preset alone.
+
+### (a) Read your own grants
+
+Both examples reuse the `client` from the quickstart above, with `tenant_id = os.environ["AXHUB_TENANT_ID"]`.
+
+```python
+grants = client.authz.authorization_get_api_v1_tenants_by_tenant_id_me_grants(
+    path_params={"tenantID": tenant_id},
+)
+# GET /api/v1/tenants/{tenantID}/me/grants answers with a bare JSON array,
+# so this is a Python list, not a dict.
+for g in grants:
+    print(g["connectorId"], g["status"], g.get("scopeResourcePaths"), g.get("scopeLevels"))
+    # 86afe26e-...  active  ['nas:RnD', 'nas:ILABMEDIA']  {'nas:RnD': 'write', 'nas:ILABMEDIA': 'read'}
+```
+
+Same call by operation id: `client.request("authorizationGetApiV1TenantsByTenantIDMeGrants", path_params={"tenantID": tenant_id})`.
+
+Response keys arrive camelCased (`scopeResourcePaths`, `scopeLevels`, `connectorId`), while request bodies keep the backend wire keys (`connector_id`, `session_id`). A grant that never had a scope simply omits both `scopeResourcePaths` and `scopeLevels`. Only targets whose level is `write` are safe to upload into.
+
+### (b) Upload a file with `gateway invoke`
+
+`POST /gateway/invoke` proxies one REST call to the connector, so an upload is just `PUT /v2/file` with the bytes attached. **The wire contract is base64**: `body` is a base64 string going out, and the response `body` is a base64 string coming back. Invoke needs an active session, so open one first and close it when you are done.
+
+```python
+import base64
+
+connector_id = grants[0]["connectorId"]
+
+session = client.gateway.gateway_post_api_v1_tenants_by_tenant_id_gateway_sessions(
+    path_params={"tenantID": tenant_id},
+    body={"connector_id": connector_id},
+)
+session_id = session["id"]
+
+payload = open("report.pdf", "rb").read()
+
+res = client.gateway.gateway_post_api_v1_tenants_by_tenant_id_gateway_invoke(
+    path_params={"tenantID": tenant_id},
+    body={
+        "session_id": session_id,
+        "method": "PUT",
+        "path": "/v2/file?source=nas:RnD&path=/reports/report.pdf",
+        "headers": {"Content-Type": "application/pdf"},
+        "body": base64.b64encode(payload).decode(),
+    },
+)
+print(res["statusCode"], base64.b64decode(res.get("body") or "").decode())
+
+client.gateway.gateway_delete_api_v1_tenants_by_tenant_id_gateway_sessions_by_session_id(
+    path_params={"tenantID": tenant_id, "sessionID": session_id},
+)
+```
+
+**Anything past 3 MiB has to be split.** The gateway hands the call to the site agent as one framed message and that frame is capped at 4 MiB, while base64 inflates the payload by roughly 4/3. So the gateway refuses a raw body over 3 MiB up front, with `payload_too_large` — deliberately, because an oversized envelope would trip the agent's read limit and drop the tunnel itself, failing every other call to that site until it reconnects. Send one `invoke` per chunk with a `Content-Range` header describing the slice; 2 MiB is the chunk size we have exercised:
+
+```python
+CHUNK = 2 * 1024 * 1024
+total = len(payload)
+for start in range(0, total, CHUNK):
+    chunk = payload[start:start + CHUNK]
+    end = start + len(chunk) - 1
+    client.gateway.gateway_post_api_v1_tenants_by_tenant_id_gateway_invoke(
+        path_params={"tenantID": tenant_id},
+        body={
+            "session_id": session_id,
+            "method": "PUT",
+            "path": "/v2/file?source=nas:RnD&path=/reports/report.pdf",
+            "headers": {"Content-Range": f"bytes {start}-{end}/{total}"},
+            "body": base64.b64encode(chunk).decode(),
+        },
+    )
+```
+
+Denials arrive as `AxHubError`, and the `code` tells you which gate refused:
+
+| `code` | What it means |
+|--------|---------------|
+| `action_denied` | The preset does not allow this method/path, or the target is outside the grant's scope |
+| `scope_out_of_range` | The path names a target the grant's scope does not cover |
+| `scope_requires_target` | The grant is target-scoped, so an unscoped path is not allowed — name a target |
+| `session_expired` / `not_found` | The session lapsed or was already closed — open a new one |
+| `payload_too_large` | The raw body is over the 3 MiB per-call limit — split it with `Content-Range` |
+
+Async use is the same shape: `AsyncAxHubClient` exposes `await client.gateway.gateway_post_api_v1_tenants_by_tenant_id_gateway_invoke(...)` and `await client.authz.authorization_get_api_v1_tenants_by_tenant_id_me_grants(...)`.
 
 ## Live QA evidence agents can trust
 
