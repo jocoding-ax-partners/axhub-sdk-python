@@ -187,6 +187,7 @@ ERROR_CODES = {
     "token_missing": ErrorInfo("unauthenticated", 401, True),
     "too_long": ErrorInfo("validation", 400, False),
     "topup_in_progress": ErrorInfo("conflict", 409, True),
+    "no_delivery_target": ErrorInfo("conflict", 409, False),
     "unknown_feature_key": ErrorInfo("validation", 400, False),
     "unknown_plan": ErrorInfo("not_found", 404, False),
     "unpaid_balance": ErrorInfo("payment_required", 402, False),
